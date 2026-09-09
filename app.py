@@ -99,5 +99,131 @@ def logout():
     }), 200
 
 
+# -------------------------
+# Notes CRUD Routes
+# -------------------------
+
+@app.get("/notes")
+def get_notes():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    notes = Note.query.filter_by(user_id=user_id).all()
+
+    return jsonify([
+        {
+            "id": note.id,
+            "title": note.title,
+            "content": note.content,
+            "user_id": note.user_id
+        }
+        for note in notes
+    ]), 200
+
+
+@app.get("/notes/<int:id>")
+def get_note_by_id(id):
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    note = Note.query.filter_by(id=id, user_id=user_id).first()
+
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+
+    return jsonify({
+        "id": note.id,
+        "title": note.title,
+        "content": note.content,
+        "user_id": note.user_id
+    }), 200
+
+
+@app.post("/notes")
+def create_note():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+
+    title = data.get("title")
+    content = data.get("content")
+
+    if not title or not content:
+        return jsonify({"error": "Title and content are required"}), 400
+
+    note = Note(
+        title=title,
+        content=content,
+        user_id=user_id
+    )
+
+    db.session.add(note)
+    db.session.commit()
+
+    return jsonify({
+        "id": note.id,
+        "title": note.title,
+        "content": note.content,
+        "user_id": note.user_id
+    }), 201
+
+
+@app.patch("/notes/<int:id>")
+def update_note(id):
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    note = Note.query.filter_by(id=id, user_id=user_id).first()
+
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+
+    data = request.get_json() or {}
+
+    title = data.get("title")
+    content = data.get("content")
+
+    if title:
+        note.title = title
+    if content:
+        note.content = content
+
+    db.session.commit()
+
+    return jsonify({
+        "id": note.id,
+        "title": note.title,
+        "content": note.content,
+        "user_id": note.user_id
+    }), 200
+
+
+@app.delete("/notes/<int:id>")
+def delete_note(id):
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    note = Note.query.filter_by(id=id, user_id=user_id).first()
+
+    if not note:
+        return jsonify({"error": "Note not found"}), 404
+
+    db.session.delete(note)
+    db.session.commit()
+
+    return jsonify({"message": "Note deleted successfully"}), 200
+
+
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
