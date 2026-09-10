@@ -1,1 +1,87 @@
-Single-database configuration for Flask.
+# Notes App Backend
+
+A secure Flask REST API for a personal notes application. Users can sign up, log in, and manage their own private notes. Session-based authentication ensures each user can only view, create, update, or delete their own notes.
+
+## Description
+
+This backend was built as a Flask summative lab covering authentication, database relationships, and RESTful API design. Every user has their own set of notes (one-to-many relationship between `User` and `Note`), and all note endpoints are protected so that a logged-in user can never see or modify another user's data.
+
+## Tech Stack
+
+- Flask
+- Flask-SQLAlchemy
+- Flask-Migrate
+- Flask-Bcrypt (password hashing)
+- Faker (database seeding)
+- SQLite
+
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone <your-repo-url>
+   cd notes-app-backend
+   ```
+2. Install dependencies:
+   ```
+   pipenv install
+   pipenv shell
+   ```
+3. Set up the database:
+   ```
+   flask db upgrade
+   ```
+   (If migrations haven't been initialized yet: `flask db init`, then `flask db migrate -m "initial migration"`, then `flask db upgrade`.)
+4. Seed the database with sample data:
+   ```
+   python seed.py
+   ```
+
+## Running the App
+
+```
+python app.py
+```
+
+The API will run at `http://localhost:5555`.
+
+## Authentication
+
+This API uses **session-based authentication** (cookies). Log in once and the session cookie authenticates subsequent requests — no token needs to be sent manually.
+
+## Endpoints
+
+### Auth
+
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| POST | `/signup` | Create a new user account | No |
+| POST | `/login` | Log in and start a session | No |
+| GET | `/check_session` | Return the current logged-in user | Yes |
+| DELETE | `/logout` | End the session | Yes |
+
+### Notes
+
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| GET | `/notes?page=1&per_page=10` | List the current user's notes, paginated | Yes |
+| GET | `/notes/<id>` | Get a single note (must belong to the user) | Yes |
+| POST | `/notes` | Create a new note (`title`, `content`) | Yes |
+| PATCH | `/notes/<id>` | Update a note's `title` and/or `content` | Yes |
+| DELETE | `/notes/<id>` | Delete a note | Yes |
+
+Any request to a `/notes` endpoint without a valid session returns `401 Unauthorized`. Any request for a note that belongs to another user returns `404 Not Found` (so users can't tell whether a note exists at all).
+
+## Testing with Postman
+
+1. Set the base URL to `http://localhost:5555`.
+2. Enable "Automatically follow cookies" (Postman does this by default within one workspace) so your session cookie persists between requests.
+3. `POST /signup` with a JSON body: `{"username": "yourname", "password": "yourpassword"}`.
+4. `POST /login` with the same credentials.
+5. Call `GET /notes`, `POST /notes`, `PATCH /notes/<id>`, `DELETE /notes/<id>` — the session cookie from step 4 authenticates them.
+6. Try logging in as a second user and requesting the first user's note `id` directly — it should return `404`, confirming access control works.
+7. `DELETE /logout`, then try `GET /check_session` — it should return `401`.
+
+## Sample Seeded User
+
+After running `python seed.py`, check the console output for a sample username; the password for all seeded users is `password123`.
