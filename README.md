@@ -1,4 +1,3 @@
-# notes-app-backend
 # Notes App Backend
 
 ## Description
@@ -60,7 +59,7 @@ The application uses SQLAlchemy for database management, Flask-Migrate for datab
 
 ### Notes
 
-- `GET /notes` — View notes belonging to the logged-in user
+- `GET /notes?page=1&per_page=10` — View the logged-in user's notes with pagination
 - `POST /notes` — Create a new note
 - `GET /notes/<id>` — View a specific note
 - `PATCH /notes/<id>` — Update an existing note
@@ -77,10 +76,10 @@ The application uses SQLAlchemy for database management, Flask-Migrate for datab
 
 ## Collaborators
 
-- Abigail Tandiwe — Project Structure and Models
-- Teddy Learamo — Authentication
-- Gabriel Cosmas — Notes CRUD and Authorization
-- Mark Njoroge — Pagination, Seeding, Testing and Documentation
+- [Abigail Tandiwe](https://github.com/tandisimelane-15) — Project Structure and Models
+- [Teddy Learamo](https://github.com/teddylearamo) — Authentication
+- [Gabriel Cosmas](https://github.com/Gabrielcosmas) — Notes CRUD and Authorization
+- [Mark Njoroge](https://github.com/Mark-njoroge1) — Pagination, Seeding, Testing and Documentation
 
 ## How to Contribute
 
